@@ -70,11 +70,26 @@ bool Renderer::init() {
 }
 
 void Renderer::draw(AudioData *audio_data) {
+
+    std::lock_guard<std::mutex> lock(audio_data->audio_mutex);
+    int size =  sizeof(audio_data->audio_samples) / sizeof(audio_data->audio_samples[0]);
+    float vertices[4096 * 3];
+    for (int i = 0; i < size; ++i) {
+        vertices[i*3] = (i / 4095.0f) * 2.0f - 1.0f;
+        vertices[i*3+1] = audio_data->audio_samples[i];
+         vertices[i*3+2] = 0;
+
+    }
+    
     glClearColor(0.05f, 0.05f, 0.15f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(shaderProgram);
     glBindVertexArray(vertexID);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glBindBuffer(GL_ARRAY_BUFFER, bufferID);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+    glDrawArrays(GL_LINE_STRIP, 0, size);
+
+    
 }
 
 void Renderer::cleanup() {

@@ -1042,7 +1042,9 @@ CMakeFiles/MotionWavePlus.dir/src/render/Renderer.cpp.o: /Users/fuaadshurie/Desk
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/Availability.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityInternal.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityInternalLegacy.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityMacros.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/TargetConditionals.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/___wctype.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/__wctype.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/__xlocale.h \
@@ -1050,6 +1052,7 @@ CMakeFiles/MotionWavePlus.dir/src/render/Renderer.cpp.o: /Users/fuaadshurie/Desk
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_bounds.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_ctermid.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_ctype.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_inttypes.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_locale.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_locale_posix2008.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_mb_cur_max.h \
@@ -1810,9 +1813,11 @@ CMakeFiles/MotionWavePlus.dir/src/render/Renderer.cpp.o: /Users/fuaadshurie/Desk
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/deque \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/errno.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/exception \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/float.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/format \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/functional \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/initializer_list \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/inttypes.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/ios \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/iosfwd \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/iostream \
@@ -1852,6 +1857,8 @@ CMakeFiles/MotionWavePlus.dir/src/render/Renderer.cpp.o: /Users/fuaadshurie/Desk
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/wctype.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/ctype.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/errno.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/float.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/inttypes.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/libkern/_OSByteOrder.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/libkern/arm/_OSByteOrder.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/limits.h \
@@ -1882,6 +1889,7 @@ CMakeFiles/MotionWavePlus.dir/src/render/Renderer.cpp.o: /Users/fuaadshurie/Desk
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/stdio.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/stdlib.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/string.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/strings.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/__endian.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_endian.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_posix_availability.h \
@@ -1975,6 +1983,7 @@ CMakeFiles/MotionWavePlus.dir/src/render/Renderer.cpp.o: /Users/fuaadshurie/Desk
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/xlocale.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/xlocale/___wctype.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/xlocale/_ctype.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/xlocale/_inttypes.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/xlocale/_stdio.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/xlocale/_stdlib.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/xlocale/_string.h \
@@ -1996,12 +2005,68 @@ CMakeFiles/MotionWavePlus.dir/src/render/Renderer.cpp.o: /Users/fuaadshurie/Desk
   /Library/Developer/CommandLineTools/usr/lib/clang/17/include/__stddef_rsize_t.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/17/include/__stddef_size_t.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/17/include/__stddef_wchar_t.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/17/include/arm_bf16.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/17/include/arm_neon.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/17/include/arm_vector_types.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/17/include/float.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/17/include/inttypes.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/17/include/limits.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/17/include/ptrcheck.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/17/include/stdarg.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/17/include/stddef.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/17/include/stdint.h \
+  /Users/fuaadshurie/Desktop/Motionwaveplus/src/audio/AudioData.h \
   /Users/fuaadshurie/Desktop/Motionwaveplus/src/render/Renderer.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_assert.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_atomic.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_audio.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_blendmode.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_clipboard.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_config.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_cpuinfo.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_endian.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_error.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_events.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_filesystem.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_gamecontroller.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_gesture.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_guid.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_haptic.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_hidapi.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_hints.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_joystick.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_keyboard.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_keycode.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_loadso.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_locale.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_log.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_main.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_messagebox.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_metal.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_misc.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_mouse.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_mutex.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_pixels.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_platform.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_power.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_quit.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_rect.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_render.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_rwops.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_scancode.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_sensor.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_shape.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_stdinc.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_surface.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_system.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_thread.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_timer.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_touch.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_version.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_video.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/begin_code.h \
+  /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/close_code.h \
   /opt/homebrew/include/GL/glew.h
 
 
