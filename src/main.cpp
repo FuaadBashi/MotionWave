@@ -5,11 +5,7 @@
 #include "audio/AudioData.h" 
 #include <mutex>
 
-struct RingBuffer {
-    std::vector<float> buffer;
-    std::atomic<size_t> write_pos;
-    std::atomic<size_t> read_pos;
-};
+
 
 void audioCallback(void* userdata, Uint8* stream, int len) {
     AudioData* audio = (AudioData*)userdata;
