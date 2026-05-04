@@ -15,7 +15,7 @@ void decoderThread (AudioData * audio_data){
     for (int i = 0; current_sample_pos < (audio_data->len / sizeof(Sint16)); ++i){
 
         for (int j = 0; j < sample_size; ++j){
-            data[current_sample_pos + j] = (buff[j] / 32768.0f);
+            data[j] = (buff[current_sample_pos+j] / 32768.0f);
         }
         current_sample_pos = current_sample_pos + 4096;
         audio_data -> ring_buf.write( data, sample_size);
