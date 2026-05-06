@@ -1,4 +1,4 @@
 build/
 .DS_Store
-commentsmain.cpp
-commentsRenderer.cpp
+com/commentsmain.cpp
+com/ommentsRenderer.cpp

@@ -10,7 +10,7 @@ find_package(GLEW REQUIRED)
 add_executable(MotionWavePlus 
     src/main.cpp
     src/render/Renderer.cpp
-    src/audio/RingBuffer.cppcd
+    src/audio/RingBuffer.cpp
 )
 
 target_include_directories(MotionWavePlus PRIVATE ${SDL2_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/src)

@@ -1310,6 +1310,7 @@ CMakeFiles/MotionWavePlus.dir/src/main.cpp.o: /Users/fuaadshurie/Desktop/Motionw
   /Library/Developer/CommandLineTools/usr/lib/clang/17/include/stddef.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/17/include/stdint.h \
   /Users/fuaadshurie/Desktop/Motionwaveplus/src/audio/AudioData.h \
+  /Users/fuaadshurie/Desktop/Motionwaveplus/src/audio/RingBuffer.h \
   /Users/fuaadshurie/Desktop/Motionwaveplus/src/render/Renderer.h \
   /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL.h \
   /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_assert.h \
@@ -2344,6 +2345,7 @@ CMakeFiles/MotionWavePlus.dir/src/render/Renderer.cpp.o: /Users/fuaadshurie/Desk
   /Library/Developer/CommandLineTools/usr/lib/clang/17/include/stddef.h \
   /Library/Developer/CommandLineTools/usr/lib/clang/17/include/stdint.h \
   /Users/fuaadshurie/Desktop/Motionwaveplus/src/audio/AudioData.h \
+  /Users/fuaadshurie/Desktop/Motionwaveplus/src/audio/RingBuffer.h \
   /Users/fuaadshurie/Desktop/Motionwaveplus/src/render/Renderer.h \
   /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL.h \
   /opt/homebrew/Cellar/sdl2/2.32.10/include/SDL2/SDL_assert.h \
