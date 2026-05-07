@@ -28,48 +28,33 @@ void decoderThread(AudioData *audio_data)
 void audioCallback(void *userdata, Uint8 *stream, int len)
 {
     AudioData *audio = (AudioData *)userdata;
-    std::lock_guard<std::mutex> lock(audio->audio_mutex);
 
-    if (audio->pos >= audio->len)
+    // Number of float samples needed
+    size_t count = len / sizeof(Sint16);
+
+    // Temporary float buffer
+    float temp[count];
+
+    // Read float samples from ring buffer
+    bool ring_read = audio->ring_buf.read(temp, count);
+
+    // If buffer underrun -> output silence
+    if (!ring_read)
     {
         SDL_memset(stream, 0, len);
         return;
     }
 
-    Uint32 remaining = audio->len - audio->pos;
-    Uint32 toCopy = (len > (int)remaining) ? remaining : len;
+    // Interpret output stream as 16-bit PCM samples
+    Sint16 *stream16 = reinterpret_cast<Sint16 *>(stream);
 
-    SDL_memcpy(stream, audio->buf + audio->pos, toCopy);
-
-    // Sint16* stream16 = (Sint16*)stream;
-    // Uint32 max_samples = sizeof(audio->audio_samples) / sizeof(audio->audio_samples[0]);
-    // Uint32 iteration_length = ((int) toCopy/2 >max_samples) ? max_samples : toCopy/2;
-
-    // for (int i = 0; i < iteration_length; ++i){
-    //     audio->audio_samples[i] = stream16[i]/32768.0f;
-    // }  -------- OLD improved version below -------
-
-    Sint16 *samples = reinterpret_cast<Sint16 *>(stream);
-
-    // bytes → samples (16-bit = 2 bytes per sample)
-    Uint32 samples_requested = toCopy / sizeof(Sint16);
-
-    // derive buffer capacity safely
-    Uint32 max_samples = sizeof(audio->audio_samples) / sizeof(audio->audio_samples[0]);
-    Uint32 samples_to_process = (samples_requested > max_samples) ? max_samples : samples_requested;
-
-    // convert to float [-1, 1]
-    for (Uint32 i = 0; i < samples_to_process; ++i)
+    // Convert normalized floats (-1.0 -> 1.0)
+    // into signed 16-bit PCM audio
+    for (size_t i = 0; i < count; ++i)
     {
-        audio->audio_samples[i] = samples[i] / 32768.0f;
+        stream16[i] = (Sint16)(temp[i] * 32767.0f);
     }
-    audio->sample_count = samples_to_process;
-    audio->pos += toCopy;
-
-    if (toCopy < (Uint32)len)
-        SDL_memset(stream + toCopy, 0, len - toCopy);
-
-} // i used ai to help for this function
+}
 
 int main(int argc, char *argv[])
 {
@@ -133,6 +118,8 @@ int main(int argc, char *argv[])
         std::cout << "SDL_LoadWAV failed: " << SDL_GetError() << "\n";
         return -1;
     }
+
+    std::cout << "spec format is:" << spec.format << "\n";;
 
     // AudioData audioData = { audio_buf, audio_len, 0 };
     AudioData audio_data;
