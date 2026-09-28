@@ -1,4 +1,9 @@
+# Build output
+build/
+build-*/
+cmake-build-*/
 
+# Editor and OS files
+.vscode/
+.idea/
 .DS_Store
-com/commentsmain.cpp
-com/ommentsRenderer.cpp

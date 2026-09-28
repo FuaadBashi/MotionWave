@@ -1,17 +1,28 @@
 #pragma once
+
 #include <SDL2/SDL.h>
+
+#include <atomic>
+#include <condition_variable> // was missing, so the build failed outside macOS
 #include <mutex>
+
 #include "RingBuffer.h"
 
-
+// State shared between the decoder thread, the SDL audio callback and the renderer.
 struct AudioData {
-    Uint8* buf;  // pointer to the audio file in memory
-    Uint32 len;   // ttal size of the audio file in bytes
-    Uint32 pos;   // Current playback position (g eg a bookmark)
-    float audio_samples[4096];
-    int sample_count; 
+    static constexpr int kVisualSamples = 4096;
+
+    Uint8 *buf = nullptr; // the whole WAV file, as 16-bit samples
+    Uint32 len = 0;       // size of buf in bytes
+
+    // Latest samples played, copied for the renderer.
+    float audio_samples[kVisualSamples] = {};
+    int sample_count = 0;
     std::mutex audio_mutex;
+
+    // Decoder -> audio callback.
+    RingBuffer ring_buf;
     std::mutex mtx;
     std::condition_variable cv;
-    RingBuffer ring_buf;
+    std::atomic<bool> stop{false};
 };

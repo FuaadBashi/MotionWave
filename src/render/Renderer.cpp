@@ -2,17 +2,17 @@
 // Nothing in here knows about SDL2 or the window.
 // It only speaks to the GPU.
 
-#include <iostream>
 #include "Renderer.h"
+#include <iostream>
 
-const char* vertexShaderSource = R"(#version 330 core
+const char *vertexShaderSource = R"(#version 330 core
 layout (location = 0) in vec3 aPos;
 void main() {
     gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
 }
 )";
 
-const char* fragmentShaderSource = R"(#version 330 core
+const char *fragmentShaderSource = R"(#version 330 core
 out vec4 FragColor;
 void main() {
     FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
@@ -22,18 +22,14 @@ void main() {
 static unsigned int shaderProgram, vertexID, bufferID;
 
 bool Renderer::init() {
-    float points[9] = {
-         0.0f,  1.0f, 0.0f,
-        -0.866f, -0.5f, 0.0f,
-         0.866f, -0.5f, 0.0f
-    };
+    float points[9] = {0.0f, 1.0f, 0.0f, -0.866f, -0.5f, 0.0f, 0.866f, -0.5f, 0.0f};
 
     glGenVertexArrays(1, &vertexID);
     glGenBuffers(1, &bufferID);
     glBindVertexArray(vertexID);
     glBindBuffer(GL_ARRAY_BUFFER, bufferID);
     glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
 
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -69,8 +65,7 @@ bool Renderer::init() {
     return true;
 }
 
-void Renderer::draw(AudioData *audio_data)
-{
+void Renderer::draw(AudioData *audio_data) {
     // Copy audio data under lock then release immediately
     float local_samples[4096];
     int size;
@@ -82,9 +77,8 @@ void Renderer::draw(AudioData *audio_data)
 
     // All OpenGL work happens outside the lock with the local copy
     float vertices[4096 * 3];
-    for (int i = 0; i < size; ++i)
-    {
-        vertices[i * 3]     = (i / 4095.0f) * 2.0f - 1.0f;
+    for (int i = 0; i < size; ++i) {
+        vertices[i * 3] = (i / 4095.0f) * 2.0f - 1.0f;
         vertices[i * 3 + 1] = local_samples[i];
         vertices[i * 3 + 2] = 0.0f;
     }

@@ -1,32 +1,34 @@
 #include "RingBuffer.h"
 
-bool RingBuffer::has_space(size_t count)
-{
-    return (16384 - (write_pos.load() - read_pos.load())) >= count;
+std::size_t RingBuffer::size() const {
+    return write_pos_.load(std::memory_order_acquire) - read_pos_.load(std::memory_order_acquire);
 }
 
-bool RingBuffer::write(const float *data, size_t count)
-{
+bool RingBuffer::has_space(std::size_t count) const {
+    return kCapacity - size() >= count;
+}
+
+bool RingBuffer::write(const float *data, std::size_t count) {
     if (!has_space(count)) {
         return false;
     }
-    for (int i = 0; i < count; ++i) {
-        buffer[write_pos & 16383] = data[i];
-        ++write_pos;
+    std::size_t pos = write_pos_.load(std::memory_order_relaxed);
+    for (std::size_t i = 0; i < count; ++i) {
+        buffer_[(pos + i) & kMask] = data[i];
     }
+    // Publish the samples only after they are written.
+    write_pos_.store(pos + count, std::memory_order_release);
     return true;
 }
 
-bool RingBuffer::read(float *dest, size_t count)
-{
-    if (write_pos.load() - read_pos.load() < count)
-    {
+bool RingBuffer::read(float *dest, std::size_t count) {
+    if (size() < count) {
         return false;
     }
-    for (int i = 0; i < count; ++i)
-    {
-        dest[i] = buffer[read_pos & 16383];
-        ++read_pos;
+    std::size_t pos = read_pos_.load(std::memory_order_relaxed);
+    for (std::size_t i = 0; i < count; ++i) {
+        dest[i] = buffer_[(pos + i) & kMask];
     }
+    read_pos_.store(pos + count, std::memory_order_release);
     return true;
 }
