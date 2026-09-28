@@ -66,19 +66,15 @@ bool Renderer::init() {
 }
 
 void Renderer::draw(AudioData *audio_data) {
-    // Copy audio data under lock then release immediately
-    float local_samples[4096];
-    int size;
-    {
-        std::lock_guard<std::mutex> lock(audio_data->audio_mutex);
-        size = sizeof(audio_data->audio_samples) / sizeof(audio_data->audio_samples[0]);
-        std::copy(audio_data->audio_samples, audio_data->audio_samples + size, local_samples);
-    }
+    // Copy the latest block out and do all OpenGL work on the copy, so the buffer is held only
+    // for a memcpy. Only the samples actually received are drawn; this used to draw all 4096
+    // slots whatever the callback had written.
+    float local_samples[SampleExchange::kCapacity];
+    const int size = audio_data->visual.copyLatest(local_samples);
 
-    // All OpenGL work happens outside the lock with the local copy
-    float vertices[4096 * 3];
+    float vertices[SampleExchange::kCapacity * 3];
     for (int i = 0; i < size; ++i) {
-        vertices[i * 3] = (i / 4095.0f) * 2.0f - 1.0f;
+        vertices[i * 3] = (size > 1 ? i / static_cast<float>(size - 1) : 0.0f) * 2.0f - 1.0f;
         vertices[i * 3 + 1] = local_samples[i];
         vertices[i * 3 + 2] = 0.0f;
     }
@@ -88,7 +84,9 @@ void Renderer::draw(AudioData *audio_data) {
     glUseProgram(shaderProgram);
     glBindVertexArray(vertexID);
     glBindBuffer(GL_ARRAY_BUFFER, bufferID);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+    // Upload only the filled vertices, not the uninitialised tail of the array.
+    glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(size) * 3 * sizeof(float), vertices,
+                 GL_DYNAMIC_DRAW);
     glDrawArrays(GL_LINE_STRIP, 0, size);
 }
 

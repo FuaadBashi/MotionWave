@@ -12,17 +12,22 @@ OpenGL, using SDL2 for the window and audio output.
 ```
 decoder thread ──▶ lock-free ring buffer ──▶ SDL audio callback ──▶ speakers
                                                     │
-                                                    └─(mutex, copy)──▶ OpenGL renderer (60 fps)
+                                                    └─(try-lock, copy)──▶ OpenGL renderer (60 fps)
 ```
 
 - **Three threads, one direction of data.** A decoder thread converts samples to floats and
   feeds a ring buffer. SDL's real-time audio callback drains it. The render loop draws the most
   recent block.
 - **Lock-free ring buffer.** A single-producer, single-consumer ring with atomic read and write
-  indices and acquire/release ordering, so the audio callback never blocks on a lock and never
-  glitches. It is tested with a million-sample producer/consumer run under ThreadSanitizer.
+  indices and acquire/release ordering, so the audio callback never waits on the decoder. It is
+  tested with a million-sample producer/consumer run under ThreadSanitizer. If the decoder falls
+  behind, the callback plays silence for that block (an underrun) rather than stalling.
+- **Non-blocking hand-off to the renderer.** The callback only *tries* the lock on the shared
+  sample buffer ([`SampleExchange`](src/audio/SampleExchange.h)). If the renderer is mid-copy,
+  that block is not drawn and the audio thread does not wait. A unit test holds the buffer from a
+  "renderer" thread and checks that publishing returns immediately.
 - **Back-pressure.** The decoder sleeps on a condition variable while the buffer is full and is
-  woken by the callback, so it never busy-waits or runs ahead of playback.
+  woken by the callback, so it never busy-waits and stays at most one buffer ahead of playback.
 - **Clean shutdown.** Closing the window sets a stop flag and wakes the decoder, so the app exits
   immediately rather than waiting for the track to finish.
 - **Any WAV.** 8-bit, 24-bit and float files are converted to 16-bit with `SDL_AudioCVT` on load.

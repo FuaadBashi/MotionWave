@@ -2,7 +2,6 @@
 #include "render/Renderer.h"
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
-#include <algorithm>
 #include <iostream>
 #include <mutex>
 #include <thread>
@@ -43,19 +42,14 @@ void audioCallback(void *userdata, Uint8 *stream, int len) {
     bool ring_read = audio->ring_buf.read(temp.data(), count);
     audio->cv.notify_one();
 
-    // Silence first if underrun — don't copy garbage into audio_samples
+    // On underrun, play silence and publish nothing, so the renderer never draws garbage.
     if (!ring_read) {
         SDL_memset(stream, 0, len);
         return;
     }
 
-    // Lock only for the fast copy — release immediately after
-    {
-        std::lock_guard<std::mutex> lock(audio->audio_mutex);
-        size_t copy_count = std::min(count, static_cast<size_t>(AudioData::kVisualSamples));
-        std::copy(temp.begin(), temp.begin() + copy_count, audio->audio_samples);
-        audio->sample_count = copy_count;
-    }
+    // Never waits: if the renderer is mid-copy, this block is simply not drawn.
+    audio->visual.tryPublish(temp.data(), static_cast<int>(count));
 
     // Convert floats to Sint16 for SDL output
     Sint16 *stream16 = reinterpret_cast<Sint16 *>(stream);

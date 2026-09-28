@@ -7,18 +7,15 @@
 #include <mutex>
 
 #include "RingBuffer.h"
+#include "SampleExchange.h"
 
 // State shared between the decoder thread, the SDL audio callback and the renderer.
 struct AudioData {
-    static constexpr int kVisualSamples = 4096;
-
     Uint8 *buf = nullptr; // the whole WAV file, as 16-bit samples
     Uint32 len = 0;       // size of buf in bytes
 
-    // Latest samples played, copied for the renderer.
-    float audio_samples[kVisualSamples] = {};
-    int sample_count = 0;
-    std::mutex audio_mutex;
+    // Latest samples played, handed to the renderer without the audio callback ever waiting.
+    SampleExchange visual;
 
     // Decoder -> audio callback.
     RingBuffer ring_buf;
