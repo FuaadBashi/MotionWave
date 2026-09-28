@@ -1,52 +1,50 @@
-#include <SDL2/SDL.h>
-#include <GL/glew.h>
-#include <iostream>
-#include "render/Renderer.h"
 #include "audio/AudioData.h"
+#include "render/Renderer.h"
+#include <GL/glew.h>
+#include <SDL2/SDL.h>
+#include <algorithm>
+#include <iostream>
 #include <mutex>
 #include <thread>
-#include <algorithm>
+#include <vector>
 
-void decoderThread(AudioData *audio_data)
-{
-    float data[4096];
-    size_t sample_size = sizeof(audio_data->audio_samples) / sizeof(audio_data->audio_samples[0]);
-    Sint16 *buff = (Sint16 *)(audio_data->buf);
+// Feeds the ring buffer from the loaded WAV, blocking while the buffer is full.
+void decoderThread(AudioData *audio_data) {
+    constexpr std::size_t kChunk = 4096;
+    float data[kChunk];
+    const Sint16 *samples = reinterpret_cast<const Sint16 *>(audio_data->buf);
+    const std::size_t total = audio_data->len / sizeof(Sint16);
 
-    int current_sample_pos = 0;
-    for (int i = 0; current_sample_pos < (audio_data->len / sizeof(Sint16)); ++i)
-    {
-
-        // In the decoder loop — guard the inner read
-        for (int j = 0; j < sample_size; ++j)
-        {
-            size_t idx = current_sample_pos + j;
-            data[j] = (idx < audio_data->len / sizeof(Sint16))
-                    ? buff[idx] / 32768.0f
-                    : 0.0f;
+    for (std::size_t pos = 0; pos < total && !audio_data->stop; pos += kChunk) {
+        for (std::size_t j = 0; j < kChunk; ++j) {
+            data[j] = pos + j < total ? samples[pos + j] / 32768.0f : 0.0f;
         }
-        current_sample_pos = current_sample_pos + 4096;
 
         std::unique_lock<std::mutex> lock(audio_data->mtx);
-        audio_data->cv.wait(lock, [&]
-                            { return audio_data->ring_buf.has_space(sample_size); });
-        audio_data->ring_buf.write(data, sample_size);
+        // Also wake on stop: otherwise closing the window waited for the whole track to play.
+        audio_data->cv.wait(
+            lock, [&] { return audio_data->stop || audio_data->ring_buf.has_space(kChunk); });
+        if (audio_data->stop) {
+            return;
+        }
+        audio_data->ring_buf.write(data, kChunk);
     }
 }
 
-void audioCallback(void *userdata, Uint8 *stream, int len)
-{
+void audioCallback(void *userdata, Uint8 *stream, int len) {
     AudioData *audio = (AudioData *)userdata;
 
     size_t count = len / sizeof(Sint16);
-    float temp[count];
+    // A variable-length array here was a GCC extension that MSVC rejects. The buffer is sized
+    // once, on the audio thread, and reused.
+    thread_local std::vector<float> temp;
+    temp.resize(count);
 
-    bool ring_read = audio->ring_buf.read(temp, count);
+    bool ring_read = audio->ring_buf.read(temp.data(), count);
     audio->cv.notify_one();
 
     // Silence first if underrun — don't copy garbage into audio_samples
-    if (!ring_read)
-    {
+    if (!ring_read) {
         SDL_memset(stream, 0, len);
         return;
     }
@@ -54,25 +52,27 @@ void audioCallback(void *userdata, Uint8 *stream, int len)
     // Lock only for the fast copy — release immediately after
     {
         std::lock_guard<std::mutex> lock(audio->audio_mutex);
-        size_t copy_count = std::min(count, (size_t)4096);
-        std::copy(temp, temp + copy_count, audio->audio_samples);
+        size_t copy_count = std::min(count, static_cast<size_t>(AudioData::kVisualSamples));
+        std::copy(temp.begin(), temp.begin() + copy_count, audio->audio_samples);
         audio->sample_count = copy_count;
     }
 
     // Convert floats to Sint16 for SDL output
     Sint16 *stream16 = reinterpret_cast<Sint16 *>(stream);
-    for (size_t i = 0; i < count; ++i)
-    {
+    for (size_t i = 0; i < count; ++i) {
         stream16[i] = (Sint16)(temp[i] * 32767.0f);
     }
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        std::cerr << "Usage: " << argv[0] << " <file.wav>\n";
+        return 1;
+    }
+    const char *file = argv[1];
 
     // --- SDL2 INIT ---
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
-    {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
         std::cout << SDL_GetError();
         return -1;
     }
@@ -82,30 +82,25 @@ int main(int argc, char *argv[])
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
     // --- WINDOW ---
-    SDL_Window *window = SDL_CreateWindow(
-        "VLC_Motion",
-        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        1280, 720,
-        SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
-    if (!window)
-    {
+    SDL_Window *window =
+        SDL_CreateWindow("MotionWave", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720,
+                         SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    if (!window) {
         std::cout << SDL_GetError();
         return -1;
     }
 
     // --- OPENGL CONTEXT ---
     SDL_GLContext glContext = SDL_GL_CreateContext(window);
-    if (!glContext)
-    {
+    if (!glContext) {
         std::cout << SDL_GetError();
         return -1;
     }
-    SDL_GL_SetSwapInterval(1); 
+    SDL_GL_SetSwapInterval(1);
 
     // --- GLEW ---
     GLenum err = glewInit();
-    if (err != GLEW_OK)
-    {
+    if (err != GLEW_OK) {
         std::cout << "GLEW Error: " << glewGetErrorString(err) << "\n";
         return -1;
     }
@@ -119,27 +114,38 @@ int main(int argc, char *argv[])
     std::cout << "Renderer init done\n";
 
     // --- AUDIO FILE ---
-    const char *file = "/Users/fuaadshurie/Desktop/Life is Beautiful.wav";
     SDL_AudioSpec spec;
-    Uint8 *audio_buf;
-    Uint32 audio_len;
+    Uint8 *audio_buf = nullptr;
+    Uint32 audio_len = 0;
 
-    SDL_LoadWAV(file, &spec, &audio_buf, &audio_len);
-    if (!audio_buf)
-    {
-        std::cout << "SDL_LoadWAV failed: " << SDL_GetError() << "\n";
-        return -1;
+    if (!SDL_LoadWAV(file, &spec, &audio_buf, &audio_len)) {
+        std::cerr << "Could not load " << file << ": " << SDL_GetError() << "\n";
+        return 1;
     }
 
-    std::cout << "spec format is:" << spec.format << "\n";
-    ;
+    // The pipeline works in 16-bit samples. Convert 8-bit, 24-bit or float WAVs rather than
+    // reinterpreting their bytes as noise.
+    if (spec.format != AUDIO_S16SYS) {
+        SDL_AudioCVT cvt;
+        SDL_BuildAudioCVT(&cvt, spec.format, spec.channels, spec.freq, AUDIO_S16SYS, spec.channels,
+                          spec.freq);
+        cvt.len = static_cast<int>(audio_len);
+        cvt.buf = static_cast<Uint8 *>(SDL_malloc(cvt.len * cvt.len_mult));
+        SDL_memcpy(cvt.buf, audio_buf, audio_len);
+        SDL_FreeWAV(audio_buf);
+        if (SDL_ConvertAudio(&cvt) != 0) {
+            std::cerr << "Could not convert audio: " << SDL_GetError() << "\n";
+            SDL_free(cvt.buf);
+            return 1;
+        }
+        audio_buf = cvt.buf;
+        audio_len = static_cast<Uint32>(cvt.len_cvt);
+        spec.format = AUDIO_S16SYS;
+    }
 
-    // AudioData audioData = { audio_buf, audio_len, 0 };
     AudioData audio_data;
     audio_data.buf = audio_buf;
     audio_data.len = audio_len;
-    audio_data.pos = 0;
-    audio_data.sample_count = 0;
     std::thread decoder(decoderThread, &audio_data);
     spec.callback = audioCallback;
     spec.userdata = &audio_data;
@@ -150,8 +156,7 @@ int main(int argc, char *argv[])
     int isCapture = 0;
     SDL_AudioDeviceID OpenAudioDevice = SDL_OpenAudioDevice(NULL, isCapture, &spec, &obtained, 0);
     std::cout << "Audio device opened: " << OpenAudioDevice << "\n";
-    if (OpenAudioDevice == 0)
-    {
+    if (OpenAudioDevice == 0) {
         std::cout << "SDL_OpenAudioDevice failed: " << SDL_GetError() << "\n";
         return -1;
     }
@@ -160,23 +165,23 @@ int main(int argc, char *argv[])
 
     // --- RENDER LOOP ---
     bool running = true;
-    while (running)
-    {
+    while (running) {
         SDL_Event event;
-        while (SDL_PollEvent(&event))
-        {
+        while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT)
                 running = false;
         }
         renderer.draw(&audio_data);
         SDL_GL_SwapWindow(window);
-        SDL_Delay(16); // ← add this
+        SDL_Delay(16);
     }
 
     // --- CLEANUP ---
+    audio_data.stop = true;
+    audio_data.cv.notify_all();
     decoder.join();
     SDL_CloseAudioDevice(OpenAudioDevice);
-    SDL_FreeWAV(audio_buf);
+    SDL_free(audio_buf); // SDL_FreeWAV is SDL_free, and also covers a converted buffer
     renderer.cleanup();
     SDL_GL_DeleteContext(glContext);
     SDL_DestroyWindow(window);

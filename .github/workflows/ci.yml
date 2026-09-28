@@ -1,0 +1,20 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    # Pinned with clang-format 18 so the format check matches local runs exactly.
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y libsdl2-dev libglew-dev clang-format-18
+      - name: Check formatting
+        run: clang-format-18 --dry-run --Werror src/*.cpp src/*/*.cpp src/*/*.h tests/*.cpp
+      - name: Build
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
